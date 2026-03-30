@@ -1,0 +1,7 @@
+[
+  { "test_name": "Ciężar właściwy moczu", "value": 1.023, "unit": "g/ml", "date": "2025-12-15" },
+  { "test_name": "pH moczu", "value": 5.5, "unit": "", "date": "2025-12-15" },
+  { "test_name": "anty-TPO", "value": 3.0, "unit": "IU/ml", "date": "2025-12-15" },
+  { "test_name": "TSH", "value": 4.16, "unit": "uIU/ml", "date": "2025-12-15" },
+  { "test_name": "FT4", "value": 1.39, "unit": "ng/dl", "date": "2025-12-15" }
+]
