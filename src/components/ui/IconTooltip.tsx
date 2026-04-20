@@ -8,7 +8,7 @@ interface IconTooltipProps {
 
 export default function IconTooltip({ testName }: IconTooltipProps) {
     const [isHovered, setIsHovered] = useState(false);
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const info = getTestInfo(testName);
 
