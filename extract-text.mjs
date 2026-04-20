@@ -17,4 +17,4 @@ async function extractText(pdfPath) {
     console.log(fullText);
 }
 
-extractText('pdfs/Badanie_lekarskie_582965124.pdf').catch(console.error);
+extractText('/Users/yoka/Downloads/Aya/Androstendion_Witamina_D3-_metabolit_25_OH_709422639.pdf').catch(console.error);

@@ -6,6 +6,7 @@ import { formatTestName, formatDate } from "../../lib/insights";
 import AlertsPanel from "./AlertsPanel";
 import MultiTrendChart from "./MultiTrendChart";
 import EditRecordModal from "./EditRecordModal";
+import IconTooltip from "../ui/IconTooltip";
 import type { HealthRow } from "../../types";
 
 type StatusDot = "red" | "amber" | "green" | "gray";
@@ -212,14 +213,32 @@ export default function DomainPage() {
                                                 )}
                                             </div>
                                             
-                                            <div className="flex items-center gap-2 pr-6 border-r border-gray-200 w-32 justify-end">
-                                                <span className="text-base font-bold text-gray-800">
-                                                    {d.value}
-                                                </span>
-                                                <span className="text-xs font-semibold uppercase tracking-widest text-gray-400">
-                                                    {d.unit}
-                                                </span>
-                                            </div>
+                                            {(() => {
+                                                const normalizedTestName = d.test_name.toLowerCase().replace(/[ -]/g, '_');
+                                                const range = ranges.find(
+                                                    (r) => r.test_name.toLowerCase().replace(/[ -]/g, '_') === normalizedTestName && (r.sex === "all" || r.sex === profile?.sex)
+                                                );
+                                                
+                                                let isOut = false;
+                                                let isSub = false;
+                                                if (range) {
+                                                    if (d.value < range.lab_lo || d.value > range.lab_hi) isOut = true;
+                                                    else if (d.value < range.optimal_lo || d.value > range.optimal_hi) isSub = true;
+                                                }
+
+                                                const valueColor = isOut ? "text-red-600" : isSub ? "text-amber-500" : range ? "text-emerald-500" : "text-gray-800";
+
+                                                return (
+                                                    <div className="flex items-center gap-2 pr-6 border-r border-gray-200 w-32 justify-end">
+                                                        <span className={`text-base font-bold ${valueColor}`}>
+                                                            {d.value}
+                                                        </span>
+                                                        <span className="text-xs font-semibold uppercase tracking-widest text-gray-400">
+                                                            {d.unit}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })()}
                                             
                                             <div className="flex shrink-0 items-center gap-2 pl-4">
                                                 <button
@@ -272,9 +291,12 @@ export default function DomainPage() {
 
                                         <StatusIndicator status={dotForTest(row.test_name)} />
 
-                                        <span className="min-w-0 flex-1 truncate font-medium text-gray-800 text-base">
-                                            {formatTestName(row.test_name)}
-                                        </span>
+                                        <div className="min-w-0 flex-1 flex items-center gap-1">
+                                            <span className="truncate font-medium text-gray-800 text-base">
+                                                {formatTestName(row.test_name)}
+                                            </span>
+                                            <IconTooltip testName={row.test_name} />
+                                        </div>
 
                                         <div className="flex flex-col shrink-0 items-end min-w-[100px]">
                                             <span className="font-bold text-gray-900 text-base">
@@ -286,7 +308,14 @@ export default function DomainPage() {
                                             
                                             {(() => {
                                                 const delta = getDelta(row.test_name, row.value);
-                                                if (!delta) return <span className="text-xs text-gray-400">First reading</span>;
+                                                if (!delta) {
+                                                    const insight = domainInsights.find((i) => i.test_name === row.test_name);
+                                                    if (insight?.type === "OUT_OF_LAB_RANGE") return <span className="text-[10px] font-bold px-1.5 py-0.5 mt-0.5 rounded border text-red-800 bg-red-100 border-red-200">Out of range</span>;
+                                                    if (insight?.type === "SUBOPTIMAL") return <span className="text-[10px] font-bold px-1.5 py-0.5 mt-0.5 rounded border text-amber-800 bg-amber-100 border-amber-200">Suboptimal</span>;
+                                                    if (insight?.type === "OPTIMAL") return <span className="text-[10px] font-bold px-1.5 py-0.5 mt-0.5 rounded border text-emerald-800 bg-emerald-100 border-emerald-200">Optimal</span>;
+                                                    
+                                                    return <span className="text-xs text-gray-400">First reading</span>;
+                                                }
                                                 
                                                 const sign = delta.diff > 0 ? "▲" : delta.diff < 0 ? "▼" : "—";
                                                 const color = delta.isGood ? "text-emerald-600 bg-emerald-50 border-emerald-100" : "text-red-600 bg-red-50 border-red-100";

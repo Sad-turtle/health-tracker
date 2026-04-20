@@ -90,9 +90,37 @@ export default function DomainCard({ domain }: DomainCardProps) {
                     )}
                 </div>
 
-                {/* ── Body (Empty to push footer down) ───────────────────── */}
-                <div className="flex-1 px-4 py-3 flex items-center justify-center">
-                    <span className="text-gray-400 text-sm">{domainRows.length} total entries</span>
+                {/* ── Body ──────────────────────────────────────────────────────── */}
+                <div className="flex-1 px-4 py-4 flex flex-col justify-center">
+                    {(() => {
+                        const uniqueTests = new Set(domainRows.map(r => r.test_name)).size;
+                        const missingCount = domainInsights.filter(i => i.type === "NEVER_TESTED" || i.type.startsWith("OVERDUE")).length;
+
+                        return (
+                            <div className="flex flex-col gap-3">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm font-medium text-gray-500 flex items-center gap-2">
+                                        <span className="text-lg">📊</span> Total Recordings
+                                    </span>
+                                    <span className="text-base font-bold text-gray-900">{domainRows.length}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-sm font-medium text-gray-500 flex items-center gap-2">
+                                        <span className="text-lg">🧪</span> Unique Tests
+                                    </span>
+                                    <span className="text-base font-bold text-gray-900">{uniqueTests}</span>
+                                </div>
+                                {missingCount > 0 && (
+                                    <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                                        <span className="text-sm font-medium text-amber-600 flex items-center gap-2">
+                                            <span className="text-lg">⚠️</span> Action Needed
+                                        </span>
+                                        <span className="text-sm font-bold text-amber-600">{missingCount} missing/due</span>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })()}
                 </div>
 
                 {/* ── Footer ────────────────────────────────────────────── */}

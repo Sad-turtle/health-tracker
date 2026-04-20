@@ -252,3 +252,4 @@ export function parseGoals(raw: string[][]): Goal[] {
 // Re-export SheetsConfig type usage — no longer needed for auth,
 // but kept for backwards compatibility
 export type { SheetsConfig };
+

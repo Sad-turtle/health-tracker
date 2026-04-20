@@ -5,36 +5,45 @@ import ProfileSwitcher from "./components/ui/ProfileSwitcher";
 import DomainGrid from "./components/dashboard/DomainGrid";
 import SettingsPage from "./components/dashboard/SettingsPage";
 import EntryForm from "./components/dashboard/EntryForm";
-import PdfUpload from "./components/dashboard/PdfUpload";
 import DomainPage from "./components/dashboard/DomainPage";
+import TestInfoPage from "./components/dashboard/TestInfoPage";
 import { useApp } from "./context/AppContext";
+
+import AlertsPanel from "./components/dashboard/AlertsPanel";
 
 function Dashboard() {
   const [showEntry, setShowEntry] = useState(false);
-  const [showPdf, setShowPdf] = useState(false);
+  const [showAlerts, setShowAlerts] = useState(false);
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 px-4 py-8">
-      {/* Action bar */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => setShowEntry(true)}
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
-        >
-          + Add result
-        </button>
-        <button
-          onClick={() => setShowPdf(true)}
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-        >
-          📄 Upload PDF
-        </button>
+      {/* Header and Global Alerts */}
+      <div className="flex flex-col md:flex-row gap-8 items-start justify-between">
+        <div className="w-full md:flex-1">
+          <div className="flex items-center gap-4 mb-4">
+            <h2 className="text-xl font-bold text-gray-900">Priority Actions</h2>
+            <button
+              onClick={() => setShowAlerts(!showAlerts)}
+              className="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+            >
+              {showAlerts ? "Hide Alerts" : "Show Alerts"}
+            </button>
+          </div>
+          {showAlerts && <AlertsPanel />}
+        </div>
+        <div className="md:shrink-0 w-full md:w-auto flex justify-end">
+          <button
+            onClick={() => setShowEntry(true)}
+            className="w-full md:w-auto rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-blue-700 hover:shadow"
+          >
+            + Add reading
+          </button>
+        </div>
       </div>
 
       <DomainGrid />
 
       {showEntry && <EntryForm onClose={() => setShowEntry(false)} />}
-      {showPdf && <PdfUpload onClose={() => setShowPdf(false)} />}
     </div>
   );
 }
@@ -81,6 +90,7 @@ function AppShell() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/domain/:domainId" element={<DomainPage />} />
+          <Route path="/test/:testName" element={<TestInfoPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Routes>
       )}

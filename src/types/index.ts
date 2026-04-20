@@ -34,6 +34,13 @@ export interface Goal {
     notes?: string;
 }
 
+// ── Test Info (TEST_INFO tab) ───────────────────────────────────────
+export interface TestInfo {
+    test_name: string;
+    short_description: string;
+    detailed_info: string;
+}
+
 // ── Core row (one test result) ───────────────────────────────────────
 export interface HealthRow {
     date: string;             // ISO 8601 "YYYY-MM-DD"

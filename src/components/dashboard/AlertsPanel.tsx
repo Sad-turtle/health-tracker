@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useApp } from "../../context/AppContext";
 import type { Insight, Domain } from "../../types";
 import { formatTestName } from "../../lib/insights";
+import IconTooltip from "../ui/IconTooltip";
 
 // ── Domain badge colours ─────────────────────────────────────────────
 const DOMAIN_COLORS: Record<Domain, string> = {
@@ -36,30 +37,41 @@ function DomainBadge({ domain }: { domain: Domain }) {
 
 function InsightCard({ insight }: { insight: Insight }) {
     const isCritical = insight.severity === "critical";
+    const [isExpanded, setIsExpanded] = useState(false);
 
     return (
         <div
-            className={`rounded-lg border-l-4 p-4 ${isCritical
+            onClick={() => setIsExpanded(!isExpanded)}
+            className={`cursor-pointer rounded-lg border-l-4 p-4 transition-all hover:bg-opacity-80 ${isCritical
                     ? "border-red-500 bg-red-50"
                     : "border-amber-400 bg-amber-50"
                 }`}
         >
             <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-gray-900">
-                        {formatTestName(insight.test_name)}
-                    </p>
-                    <p className="mt-1 text-sm text-gray-700">{insight.message}</p>
+                    <div className="flex pl-1 items-center gap-2">
+                        <p className="font-semibold text-gray-900 group-hover:text-gray-700">
+                            {formatTestName(insight.test_name)}
+                        </p>
+                        <IconTooltip testName={insight.test_name} />
+                    </div>
+                    {isExpanded && (
+                        <p className="mt-2 text-sm text-gray-700 leading-relaxed border-t border-black/5 pt-2">
+                            {insight.message}
+                        </p>
+                    )}
                 </div>
 
-                <div className="flex shrink-0 flex-col items-end gap-1.5">
+                <div className="flex shrink-0 items-center justify-end gap-2">
                     <DomainBadge domain={insight.domain} />
-
                     {insight.days_overdue != null && insight.days_overdue > 0 && (
                         <span className="inline-block rounded-full bg-red-200 px-2 py-0.5 text-xs font-medium text-red-900">
                             {insight.days_overdue}d overdue
                         </span>
                     )}
+                    <span className={`text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
+                        <svg className="w-5 h-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                    </span>
                 </div>
             </div>
         </div>
@@ -71,6 +83,8 @@ function InsightCard({ insight }: { insight: Insight }) {
 export default function AlertsPanel({ domainFilter }: { domainFilter?: Domain }) {
     const { userInsights } = useApp();
     const [showAll, setShowAll] = useState(false);
+    const [isCriticalExpanded, setIsCriticalExpanded] = useState(true);
+    const [isWarningExpanded, setIsWarningExpanded] = useState(true);
 
     const relevantInsights = domainFilter 
         ? userInsights.filter(i => i.domain === domainFilter)
@@ -107,30 +121,50 @@ export default function AlertsPanel({ domainFilter }: { domainFilter?: Domain })
             {/* Critical section */}
             {visibleCritical.length > 0 && (
                 <div>
-                    <h3 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-red-700">
-                        <span className="inline-block h-2 w-2 rounded-full bg-red-500" />
-                        Critical ({critical.length})
+                    <h3 
+                        onClick={() => setIsCriticalExpanded(!isCriticalExpanded)}
+                        className="mb-3 flex items-center justify-between text-sm font-bold uppercase tracking-wide text-red-700 cursor-pointer select-none hover:opacity-80"
+                    >
+                        <div className="flex items-center gap-2">
+                            <span className="inline-block h-2 w-2 rounded-full bg-red-500" />
+                            Critical ({critical.length})
+                        </div>
+                        <span className={`transition-transform text-red-400 ${isCriticalExpanded ? 'rotate-180' : ''}`}>
+                            <svg className="w-5 h-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                        </span>
                     </h3>
-                    <div className="space-y-2">
-                        {visibleCritical.map((insight) => (
-                            <InsightCard key={insight.id} insight={insight} />
-                        ))}
-                    </div>
+                    {isCriticalExpanded && (
+                        <div className="space-y-2">
+                            {visibleCritical.map((insight) => (
+                                <InsightCard key={insight.id} insight={insight} />
+                            ))}
+                        </div>
+                    )}
                 </div>
             )}
 
             {/* Warning section */}
             {visibleWarnings.length > 0 && (
                 <div>
-                    <h3 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-amber-700">
-                        <span className="inline-block h-2 w-2 rounded-full bg-amber-400" />
-                        Warning ({warnings.length})
+                    <h3 
+                        onClick={() => setIsWarningExpanded(!isWarningExpanded)}
+                        className="mb-3 flex items-center justify-between text-sm font-bold uppercase tracking-wide text-amber-700 cursor-pointer select-none hover:opacity-80"
+                    >
+                        <div className="flex items-center gap-2">
+                            <span className="inline-block h-2 w-2 rounded-full bg-amber-400" />
+                            Warning ({warnings.length})
+                        </div>
+                        <span className={`transition-transform text-amber-400 ${isWarningExpanded ? 'rotate-180' : ''}`}>
+                            <svg className="w-5 h-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                        </span>
                     </h3>
-                    <div className="space-y-2">
-                        {visibleWarnings.map((insight) => (
-                            <InsightCard key={insight.id} insight={insight} />
-                        ))}
-                    </div>
+                    {isWarningExpanded && (
+                        <div className="space-y-2">
+                            {visibleWarnings.map((insight) => (
+                                <InsightCard key={insight.id} insight={insight} />
+                            ))}
+                        </div>
+                    )}
                 </div>
             )}
 

@@ -22,6 +22,7 @@ interface AppContextValue {
     goals: Goal[];
     insights: Insight[];
 
+
     // derived — filtered to selectedUserId
     userInsights: Insight[];
     userRows: HealthRow[];
